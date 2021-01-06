@@ -154,6 +154,19 @@ YARD::Rake::YardocTask.new do |y|
   y.options << "--fail-on-warning"
 end
 
+task :cloudrad do
+  YARD::Templates::Engine.register_template_path '../template'
+  YARD::Rake::YardocTask.new do |y|
+    y.options << "--fail-on-warning"
+    y.options << "template-path ../template"
+    y.options << "format txt"
+  end
+  Rake::Task[:yard].invoke
+end
+
+
+
+
 desc "Run yard-doctest example tests."
 task :doctest do
   puts "The google-cloud-vision gem does not have doctest tests."
