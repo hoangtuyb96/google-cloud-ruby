@@ -1,0 +1,16 @@
+### YamlMime:UniversalReference
+api_name: []
+items:
+- children: <%=
+  children = ""
+  if @object.children.empty?
+    children = "[]"
+  else
+    children += "\n"
+    @object.children.each do |child|
+      children += "  - #{child.path}\n"
+    end
+  end
+  children
+%>
+  fullName: <%= @object.path %>

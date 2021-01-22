@@ -1,15 +1,28 @@
 # frozen_string_literal: true
-include Helpers::ModuleHelper
+# include Helpers::ModuleHelper
 
 def init
   options.serializer = Serializers::FileSystemSerializer.new :extension => "yaml"
   # sections :index, :full_list
   options.objects.each do |object|
     begin
+      next if object.root?
+      # require "pry"
+      # binding.pry
+      # n = 28
+      # if object.name == options.objects[n].name
+      #   puts options.objects[n+1].name.to_s
+      #   require "pry"
+      #   binding.pry
+      #   exit!
+      # end
       serialize(object)
     rescue => e
       path = options.serializer.serialized_path(object)
       log.error "Exception occurred while generating '#{path}'"
+      puts object.type
+      # require "pry"
+      # binding.pry
       log.backtrace(e)
     end
   end
@@ -17,22 +30,30 @@ def init
 end
 
 def serialize(object)
-  Templates::Engine.with_serializer(object, options.serializer) do
-    T('layout').run(options)
+  # if object.path.to_s == "Google::Cloud::Vision::V1::ImageAnnotator::Client"
+  #   require "pry"
+  #   binding.pry
+  # end
+
+  # if object.files.size > 1
+  #   require "pry"
+  #   binding.pry
+  # end
+  if object.type == :method
+    require "pry"
+    binding.pry
+  end
+  puts object.type
+
+  file_name = "#{object.path}.yaml"
+
+  Templates::Engine.with_serializer(file_name, options.serializer) do
+    T('layout').run(options.merge(:item => object))
   end
 end
 
-def index
-  objects = Registry.all(:class, :module).sort_by {|o| o.name.to_s }
-  objects = run_verifier(objects)
-  # objects.each {|o| (@objects_by_letter[o.name.to_s[0, 1].upcase] ||= []) << o }
-  @objects = objects.map { |o| o.name.to_s }
-  @objects.reject! { |o| o.strip.empty? }
-
-  erb(:index)
-end
-
 def serialize_index(options)
+  return
   Templates::Engine.with_serializer('index.yaml', options.serializer) do
     T('layout').run(options.merge(:index => true))
   end
